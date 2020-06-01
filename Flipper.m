@@ -2,18 +2,19 @@
 function [] = Flipper()
 close all
 clear all
+qn = deg2rad([0    100   -100     0    90     0])
+robot = CR5;
+robot.model.base = transl(0,0,0.5);
+robot = robot.model;
+robot.plot(qn,'floorlevel',3);
+axis([-2 2 -2 2 0 3]);
 ovenPose = transl(0.7,0,0)*trotz(pi/2);
 pattyPose1 = transl(0.5,-0.7,0.7);
 pattyPose2 = transl(0.5,-0.4,0.7);
 pattyPose3 = transl(0.7,-0.4,0.7);
 pattyPose4 = transl(0.7,-0.7,0.7);
 fryPose = transl(0.3,0.3,0.7)*trotz(-pi/2);
-qn = deg2rad([0    100   -100     90    90     0])
-robot = CR5;
-robot.model.base = transl(0,0,0.5);
-robot = robot.model;
-robot.plot(qn,'floorlevel',3);
-axis([-2 2 -2 2 0 3]);
+spatPose = robot.fkine(qn)*trotz(pi)*troty(pi);
 hold on; 
 %% Loading objects
 % Load Oven
@@ -44,6 +45,12 @@ fryVertexColours = [dataFry.vertex.red,dataFry.vertex.green,dataFry.vertex.blue]
 fry_h = trisurf(fFry,vFry(:,1),vFry(:,2),vFry(:,3),'FaceVertexCData',fryVertexColours,'EdgeColor','interp','EdgeLighting','flat');
 updatedFryPosition = [fryPose*[vFry,ones(size(vFry,1),1)]']';
 fry_h.Vertices = updatedFryPosition(:,1:3);
+% Load Spatula
+[fSpat,vSpat,dataSpat] = plyread('spatula.ply','tri');
+spatVertexColours = [dataSpat.vertex.red,dataSpat.vertex.green,dataSpat.vertex.blue] / 255;  
+spat_h = trisurf(fSpat,vSpat(:,1),vSpat(:,2),vSpat(:,3),'FaceVertexCData',spatVertexColours,'EdgeColor','interp','EdgeLighting','flat');
+updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+spat_h.Vertices = updatedSpatPosition(:,1:3);
 drawnow();
 %% RMRC Parameters and setup
 t = 5;                        % total time
@@ -53,17 +60,21 @@ q0 = zeros(1,6);              % Initial guess
 qMatrix = zeros(steps,6);     % qMatrix Initialize
 qDot = zeros(steps,6);   
 
+%% Applying RMRC
+for i= 1 : steps-1
+    
+end
 end
 
-function [qMatrix] = RMRC(T1,T2,robot)
-
-% T1 = T1 (1:3,4);              % First Transformation
-% T2 = T2 (1:3,4); 
-x = zeros(2,steps);
-s = lspb(0,1,steps);
-q0 = zeros(1,6);
-qMatrix = robot.ikcon(T1)
-for i = 1:steps
- %   x(:,i) = 
-end
-end
+% function [qMatrix] = RMRC(T1,T2,robot)
+% 
+% % T1 = T1 (1:3,4);              % First Transformation
+% % T2 = T2 (1:3,4); 
+% x = zeros(2,steps);
+% s = lspb(0,1,steps);
+% q0 = zeros(1,6);
+% qMatrix = robot.ikcon(T1)
+% for i = 1:steps
+%  %   x(:,i) = 
+% end
+% end
