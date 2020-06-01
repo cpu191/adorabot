@@ -2,6 +2,7 @@
 function [] = Flipper()
 close all
 clear all
+%%%% TEST %%%%%%%
 qn = deg2rad([0    100   -100     0    90     0])
 robot = CR5;
 robot.model.base = transl(0,0,0.5);
