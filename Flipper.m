@@ -16,18 +16,18 @@ pattyPose3 = transl(0.7,-0.4,0.7);
 pattyPose4 = transl(0.7,-0.7,0.7);
 fryPose = transl(0.3,0.3,0.7)*trotz(-pi/2);
 spatPose = robot.fkine(qn)*trotz(pi)*troty(pi);
-hold on; 
+hold on;
 %% Loading objects
 % Load Oven
 [fOven,vOven,dataOven] = plyread('oven.ply','tri');
-ovenVertexColours = [dataOven.vertex.red,dataOven.vertex.green,dataOven.vertex.blue] / 255;  
+ovenVertexColours = [dataOven.vertex.red,dataOven.vertex.green,dataOven.vertex.blue] / 255;
 oven_h = trisurf(fOven,vOven(:,1),vOven(:,2),vOven(:,3),'FaceVertexCData',ovenVertexColours,'EdgeColor','interp','EdgeLighting','flat');
 updatedOvenPosition = [ovenPose*[vOven,ones(size(vOven,1),1)]']';
 oven_h.Vertices = updatedOvenPosition(:,1:3);
 
 % Load Patties
 [fPatty,vPatty,dataPatty] = plyread('patty.ply','tri');
-pattyVertexColours = [dataPatty.vertex.red,dataPatty.vertex.green,dataPatty.vertex.blue] / 255;  
+pattyVertexColours = [dataPatty.vertex.red,dataPatty.vertex.green,dataPatty.vertex.blue] / 255;
 patty_h1 = trisurf(fPatty,vPatty(:,1),vPatty(:,2),vPatty(:,3),'FaceVertexCData',pattyVertexColours,'EdgeColor','interp','EdgeLighting','flat');
 patty_h2 = trisurf(fPatty,vPatty(:,1),vPatty(:,2),vPatty(:,3),'FaceVertexCData',pattyVertexColours,'EdgeColor','interp','EdgeLighting','flat');
 patty_h3 = trisurf(fPatty,vPatty(:,1),vPatty(:,2),vPatty(:,3),'FaceVertexCData',pattyVertexColours,'EdgeColor','interp','EdgeLighting','flat');
@@ -42,40 +42,64 @@ patty_h3.Vertices = updatedPattyPosition3(:,1:3);
 patty_h4.Vertices = updatedPattyPosition4(:,1:3);
 % Load Fry basket
 [fFry,vFry,dataFry] = plyread('basket.ply','tri');
-fryVertexColours = [dataFry.vertex.red,dataFry.vertex.green,dataFry.vertex.blue] / 255;  
+fryVertexColours = [dataFry.vertex.red,dataFry.vertex.green,dataFry.vertex.blue] / 255;
 fry_h = trisurf(fFry,vFry(:,1),vFry(:,2),vFry(:,3),'FaceVertexCData',fryVertexColours,'EdgeColor','interp','EdgeLighting','flat');
 updatedFryPosition = [fryPose*[vFry,ones(size(vFry,1),1)]']';
 fry_h.Vertices = updatedFryPosition(:,1:3);
 % Load Spatula
 [fSpat,vSpat,dataSpat] = plyread('spatula.ply','tri');
-spatVertexColours = [dataSpat.vertex.red,dataSpat.vertex.green,dataSpat.vertex.blue] / 255;  
+spatVertexColours = [dataSpat.vertex.red,dataSpat.vertex.green,dataSpat.vertex.blue] / 255;
 spat_h = trisurf(fSpat,vSpat(:,1),vSpat(:,2),vSpat(:,3),'FaceVertexCData',spatVertexColours,'EdgeColor','interp','EdgeLighting','flat');
 updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
 spat_h.Vertices = updatedSpatPosition(:,1:3);
 drawnow();
 %% RMRC Parameters and setup
+% t = 5;                        % total time
+% deltaT = 0.05;                % Step frequency
+% steps =  t/deltaT;            % Number of simulation steps
+% q0 = zeros(1,6);              % Initial guess
+% qMatrix = zeros(steps,6);     % qMatrix Initialize
+% qDot = zeros(steps,6);
+% epsilon = 0.1;
+% m = zeros(steps,1); % Manipulability matrix
+%
+% %% Applying RMRC
+% for i= 1 : steps-1
+%
+% end
+end
+
+function [qMatrix] = RMRC(T1,T2,robot)
 t = 5;                        % total time
 deltaT = 0.05;                % Step frequency
 steps =  t/deltaT;            % Number of simulation steps
 q0 = zeros(1,6);              % Initial guess
 qMatrix = zeros(steps,6);     % qMatrix Initialize
-qDot = zeros(steps,6);   
+qDot = zeros(steps,6);
+epsilon = 0.1;
+m = zeros(steps,1);           % Manipulability matrix
+position = zeros(3,steps);    % location of the transform
+theta = zeros(3,steps);       % Orientation of the transform
 
-%% Applying RMRC
-for i= 1 : steps-1
+% Extract the orientation of the poses
+orient1 = tr2rpy(T1);
+orient2 = tr2rpy(T2);
+%% Setup the trajectory
+s = lspb(0,1,steps);
+for i = 1:steps
+    position(1,i) = (1-s(i))*T1(1,4) + s(i)*T2(1,4);    % X Coordinate
+    position(2,i) = (1-s(i))*T1(2,4) + s(i)*T2(2,4);    % Y
+    position(3,i) = (1-s(i))*T1(3,4) + s(i)*T2(3,4);    % Z
+    theta(1,i) = (1-s(i))*orient1(1) + s(i)*orient2(1); % Roll
+    theta(2,i) = (1-s(i))*orient1(2) + s(i)*orient2(2); % Pitch
+    theta(3,i) = (1-s(i))*orient1(3) + s(i)*orient2(3); % Yaw
+end
+qMatrix(1,:) = robot.ikcon(T1,q0);                      % Setup the first point
+%% Start RMRC
+for i = 1:steps - 1
+    T = robot.fkine(qMatrix(i,:));
+    error = x(:,i+1) - T(1:3,4); 
     
 end
-end
 
-% function [qMatrix] = RMRC(T1,T2,robot)
-% 
-% % T1 = T1 (1:3,4);              % First Transformation
-% % T2 = T2 (1:3,4); 
-% x = zeros(2,steps);
-% s = lspb(0,1,steps);
-% q0 = zeros(1,6);
-% qMatrix = robot.ikcon(T1)
-% for i = 1:steps
-%  %   x(:,i) = 
-% end
-% end
+end
