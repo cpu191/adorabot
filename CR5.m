@@ -70,8 +70,8 @@ classdef  CR5<handle
         %         end
         
         
-        function [qMatrix] = RMRC(T1,T2)
-            t = 5;                        % total time
+        function [qMatrix] = RMRC(self,T1,T2)
+            t = 3;                        % total time
             deltaT = 0.05;                % Step frequency
             steps =  t/deltaT;            % Number of simulation steps
             q0 = zeros(1,6);              % Initial guess
@@ -99,7 +99,7 @@ classdef  CR5<handle
             %% Start RMRC (Reference UTSOnline Robotic Week 9)
             for i = 1:steps - 1
                 T = self.model.fkine(qMatrix(i,:));
-                deltaX = x(:,i+1) - T(1:3,4);
+                deltaX = position(:,i+1) - T(1:3,4);
                 Rd = rpy2r(theta(1,i+1),theta(2,i+1),theta(3,i+1)); % Convert RPY angle to Rotation matrix
                 Ra = T(1:3,1:3);
                 Rdot = (1/deltaT)*(Rd-Ra);      %calculate rotation matrix
@@ -118,12 +118,12 @@ classdef  CR5<handle
                 end
                 
                 invJ = inv(J'*J + lambda *eye(6))*J';                                   % DLS Inverse
-                qdot(i,:) = (invJ*xdot)';
+                qdot(i,:) = (invJ*xDot)';
                 % Check Joint limit
                 for j = 1:6                                                             % Loop through joints 1 to 6
-                    if qMatrix(i,j) + deltaT*qdot(i,j) < p560.qlim(j,1)                     % If next joint angle is lower than joint limit...
+                    if qMatrix(i,j) + deltaT*qdot(i,j) < self.model.qlim(j,1)                     % If next joint angle is lower than joint limit...
                         qdot(i,j) = 0; 
-                    elseif qMatrix(i,j) + deltaT*qdot(i,j) > p560.qlim(j,2)                 % If next joint angle is greater than joint limit ...
+                    elseif qMatrix(i,j) + deltaT*qdot(i,j) > self.model.qlim(j,2)                 % If next joint angle is greater than joint limit ...
                         qdot(i,j) = 0; 
                     end
                 end
