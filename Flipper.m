@@ -2,7 +2,6 @@
 function [] = Flipper()
 close all
 clear all
-%%%% TEST %%%%%%%
 qn = deg2rad([0    100   -100     0    90     0])
 robot = CR5;
 robot.model.base = transl(0,0,0.5);
@@ -98,7 +97,11 @@ qMatrix(1,:) = robot.ikcon(T1,q0);                      % Setup the first point
 %% Start RMRC
 for i = 1:steps - 1
     T = robot.fkine(qMatrix(i,:));
-    error = x(:,i+1) - T(1:3,4); 
+    deltaX = x(:,i+1) - T(1:3,4); 
+    Rd = rpy2r(theta(1,i+1),theta(2,i+1),theta(3,i+1)); %
+    xDot = ( x(:,i+1) - x(:,i))/deltaT; %Calculate velocity for next step
+    J = robot.jacob0(qMatrix(i,:));
+    qDot =
     
 end
 
