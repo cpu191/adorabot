@@ -15,6 +15,7 @@ pattyPose3 = transl(0.7,-0.4,0.7);
 pattyPose4 = transl(0.7,-0.7,0.7);
 fryPose = transl(0.3,0.3,0.7)*trotz(-pi/2);
 spatPose = robot.fkine(qn)*trotz(pi)*troty(pi);
+tonyPose
 hold on;
 %% Loading objects
 % Load Oven
@@ -68,41 +69,3 @@ drawnow();
 % end
 end
 
-function [qMatrix] = RMRC(T1,T2,robot)
-t = 5;                        % total time
-deltaT = 0.05;                % Step frequency
-steps =  t/deltaT;            % Number of simulation steps
-q0 = zeros(1,6);              % Initial guess
-qMatrix = zeros(steps,6);     % qMatrix Initialize
-qDot = zeros(steps,6);
-epsilon = 0.1;
-m = zeros(steps,1);           % Manipulability matrix
-position = zeros(3,steps);    % location of the transform
-theta = zeros(3,steps);       % Orientation of the transform
-
-% Extract the orientation of the poses
-orient1 = tr2rpy(T1);
-orient2 = tr2rpy(T2);
-%% Setup the trajectory
-s = lspb(0,1,steps);
-for i = 1:steps
-    position(1,i) = (1-s(i))*T1(1,4) + s(i)*T2(1,4);    % X Coordinate
-    position(2,i) = (1-s(i))*T1(2,4) + s(i)*T2(2,4);    % Y
-    position(3,i) = (1-s(i))*T1(3,4) + s(i)*T2(3,4);    % Z
-    theta(1,i) = (1-s(i))*orient1(1) + s(i)*orient2(1); % Roll
-    theta(2,i) = (1-s(i))*orient1(2) + s(i)*orient2(2); % Pitch
-    theta(3,i) = (1-s(i))*orient1(3) + s(i)*orient2(3); % Yaw
-end
-qMatrix(1,:) = robot.ikcon(T1,q0);                      % Setup the first point
-%% Start RMRC
-for i = 1:steps - 1
-    T = robot.fkine(qMatrix(i,:));
-    deltaX = x(:,i+1) - T(1:3,4); 
-    Rd = rpy2r(theta(1,i+1),theta(2,i+1),theta(3,i+1)); %
-    xDot = ( x(:,i+1) - x(:,i))/deltaT; %Calculate velocity for next step
-    J = robot.jacob0(qMatrix(i,:));
-    qDot =
-    
-end
-
-end
