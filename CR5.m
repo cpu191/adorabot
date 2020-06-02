@@ -95,7 +95,7 @@ classdef  CR5<handle
                 theta(2,i) = (1-s(i))*orient1(2) + s(i)*orient2(2); % Pitch
                 theta(3,i) = (1-s(i))*orient1(3) + s(i)*orient2(3); % Yaw
             end
-            qMatrix(1,:) = self.model.ikcon(T1,q0);                      % Setup the first point
+            qMatrix(1,:) = self.model.ikcon(T1,deg2rad([0    100   -100     0    90     0]));                      % Setup the first point
             %% Start RMRC (Reference UTSOnline Robotic Week 9)
             for i = 1:steps - 1
                 T = self.model.fkine(qMatrix(i,:));
