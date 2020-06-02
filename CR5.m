@@ -1,9 +1,11 @@
 %% Dobot CR5 Class
 classdef  CR5<handle
     properties
+        MountPos;
         model;
         workspace = [-2 2 -2 2 -0.2 2];
-        qn = deg2rad([0    0   -100     0    90     0]);
+        qn = deg2rad([0    0   -100     0    90     0]);  
+        qMatrix;
     end
     
     methods
@@ -22,7 +24,7 @@ classdef  CR5<handle
             L(6) = Link('d',0.114,'a',0,'alpha',0,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
             
             self.model = SerialLink(L,'name',['CR5']);
-            self.model.base = transl(0,0,0.5);
+            self.model.base = transl(0,0,0.5);   
             
         end
         %     function PlotAndColour()
@@ -34,7 +36,7 @@ classdef  CR5<handle
         % Given a robot index, add the glyphs (vertices and faces) and
         % colour them in if data is available
         function PlotAndColourRobot(self)
-            q= deg2rad([0    0   -100     0    90     0]) ;
+            q= deg2rad([0    0   -100     0    90     0]) ; 
             self.model.plot(q,'floorlevel',0);
         end
         %         function PlotAndColourRobot(self)%robot,workspace)
@@ -71,8 +73,23 @@ classdef  CR5<handle
         %             end
         %         end
         
+        %% Avoid Collision
+        %         function AvoidCollison(self)
+        %
+        %         end
+        %% LinePlaneIntersection
         
-        function [qMatrix] = RMRC(self,T1,T2,qn)
+        %% Is Collision (REF: LAB 5 SOLUTION ON UTSONLINE)
+
+        %% GET LINK POSES (REF: LAB 5 SOLUTION ON UTSONLINE)
+        %% IsIntersectionPointInsideTriangle
+        % Given a point which is known to be on the same plane as the triangle
+        % determine if the point is
+        % inside (result == 1) or
+        % outside a triangle (result ==0 )
+
+        %%%%%%%%%%%%%%%%
+        function [qMatrix] = RMRC(self,T1,T2)
             t = 3;                        % total time
             deltaT = 0.05;                % Step frequency
             steps =  t/deltaT;            % Number of simulation steps
@@ -83,6 +100,7 @@ classdef  CR5<handle
             m = zeros(steps,1);           % Manipulability matrix
             position = zeros(3,steps);    % location of the transform
             theta = zeros(3,steps);       % Orientation of the transform
+            
             % Extract the orientation of the poses
             orient1 = tr2rpy(T1);
             orient2 = tr2rpy(T2);
@@ -123,12 +141,12 @@ classdef  CR5<handle
                 % Check Joint limit
                 for j = 1:6                                                             % Loop through joints 1 to 6
                     if qMatrix(i,j) + deltaT*qdot(i,j) < self.model.qlim(j,1)                     % If next joint angle is lower than joint limit...
-                        qdot(i,j) = 0; 
+                        qdot(i,j) = 0;
                     elseif qMatrix(i,j) + deltaT*qdot(i,j) > self.model.qlim(j,2)                 % If next joint angle is greater than joint limit ...
-                        qdot(i,j) = 0; 
+                        qdot(i,j) = 0;
                     end
                 end
-                qMatrix(i+1,:) = qMatrix(i,:) + deltaT*qdot(i,:);  
+                qMatrix(i+1,:) = qMatrix(i,:) + deltaT*qdot(i,:);
                 
             end
             
