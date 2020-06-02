@@ -2,11 +2,8 @@
 function [] = Flipper()
 close all
 clear all
-qn = deg2rad([0    100   -100     0    90     0]);
+qn = deg2rad([0    0   -100     0    90     0]);
 robot = CR5;
-robot.model.base = transl(0,0,0.5);
-
-robot.model.plot(qn,'floorlevel',3);
 axis([-2 2 -2 2 0 3]);
 ovenPose = transl(0.7,0,0)*trotz(pi/2);
 pattyPose1 = transl(0.5,-0.7,0.7);
@@ -55,9 +52,9 @@ spatVertexColours = [dataSpat.vertex.red,dataSpat.vertex.green,dataSpat.vertex.b
 spat_h = trisurf(fSpat,vSpat(:,1),vSpat(:,2),vSpat(:,3),'FaceVertexCData',spatVertexColours,'EdgeColor','interp','EdgeLighting','flat');
 updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
 spat_h.Vertices = updatedSpatPosition(:,1:3);
- drawnow();
+drawnow();
 
-[qMatrix] = RMRC(robot,pattyPose1*troty(pi),pattyPose2*troty(pi))
+[qMatrix] = RMRC(robot,pattyPose1*troty(pi),pattyPose2*troty(pi),deg2rad([0    0   -100     0    90     0]));
 robot.model.plot(qMatrix)   
  
 end

@@ -3,6 +3,7 @@ classdef  CR5<handle
     properties
         model;
         workspace = [-2 2 -2 2 -0.2 2];
+        qn = deg2rad([0    0   -100     0    90     0]);
     end
     
     methods
@@ -14,13 +15,14 @@ classdef  CR5<handle
         function GetCR5(self)
             
             L(1) = Link('d',0.147,'a',0,'alpha',pi/2,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
-            L(2) = Link('d',0.025,'a',0.427,'alpha',0,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
+            L(2) = Link('d',0.025,'a',0.427,'alpha',0,'offset',pi/2,'qlim',[-deg2rad(180) deg2rad(180)]);
             L(3) = Link('d',0,'a',0.357,'alpha',0,'offset',0,'qlim',[-deg2rad(160) deg2rad(160)]);
             L(4) = Link('d',0.116,'a',0,'alpha',pi/2,'offset',pi/2,'qlim',[-deg2rad(180) deg2rad(180)]);
             L(5) = Link('d',0.116,'a',0,'alpha',-pi/2,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
             L(6) = Link('d',0.114,'a',0,'alpha',0,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
             
             self.model = SerialLink(L,'name',['CR5']);
+            self.model.base = transl(0,0,0.5);
             
         end
         %     function PlotAndColour()
@@ -32,8 +34,8 @@ classdef  CR5<handle
         % Given a robot index, add the glyphs (vertices and faces) and
         % colour them in if data is available
         function PlotAndColourRobot(self)
-            q= [0 0 0 0 0 0] ;
-            self.model.plot(q);
+            q= deg2rad([0    0   -100     0    90     0]) ;
+            self.model.plot(q,'floorlevel',0);
         end
         %         function PlotAndColourRobot(self)%robot,workspace)
         %             for linkIndex = 0:self.model.n
@@ -70,7 +72,7 @@ classdef  CR5<handle
         %         end
         
         
-        function [qMatrix] = RMRC(self,T1,T2)
+        function [qMatrix] = RMRC(self,T1,T2,qn)
             t = 3;                        % total time
             deltaT = 0.05;                % Step frequency
             steps =  t/deltaT;            % Number of simulation steps
@@ -81,7 +83,6 @@ classdef  CR5<handle
             m = zeros(steps,1);           % Manipulability matrix
             position = zeros(3,steps);    % location of the transform
             theta = zeros(3,steps);       % Orientation of the transform
-            
             % Extract the orientation of the poses
             orient1 = tr2rpy(T1);
             orient2 = tr2rpy(T2);
@@ -95,7 +96,7 @@ classdef  CR5<handle
                 theta(2,i) = (1-s(i))*orient1(2) + s(i)*orient2(2); % Pitch
                 theta(3,i) = (1-s(i))*orient1(3) + s(i)*orient2(3); % Yaw
             end
-            qMatrix(1,:) = self.model.ikcon(T1,deg2rad([0    100   -100     0    90     0]));                      % Setup the first point
+            qMatrix(1,:) = self.model.ikcon(T1,qn);                      % Setup the first point
             %% Start RMRC (Reference UTSOnline Robotic Week 9)
             for i = 1:steps - 1
                 T = self.model.fkine(qMatrix(i,:));
