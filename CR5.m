@@ -90,8 +90,8 @@ classdef  CR5<handle
 
         %%%%%%%%%%%%%%%%
         function [qMatrix] = RMRC(self,T1,T2,qn)
-            t = 3;                        % total time
-            deltaT = 0.05;                % Step frequency
+            t = 1.5;                        % total time
+            deltaT = 0.01;                % Step frequency
             steps =  t/deltaT;            % Number of simulation steps
             q0 = zeros(1,6);              % Initial guess
             qMatrix = zeros(steps,6);     % qMatrix Initialize
