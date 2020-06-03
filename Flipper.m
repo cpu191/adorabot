@@ -74,21 +74,39 @@ qFry2Down = RMRC(robot,fryPose*troty(pi),Tdown,qN2Fry(end,:)); % robot qMatrix
 qDown2Spat = RMRC(robot,Tdown,spatPose*troty(pi),qFry2Down(end,:));
 %robot.model.plot(qDown2Spat,'fps',100)
 
-%% Flip the patties
+%% Flip 1
 % Spat to p1
 TrPickUpReady1 = pattyPose1*troty(pi)*transl(0.15,0,-0.1)*troty(pi/4);
 qSpat2p1 = RMRC(robot,spatPose,TrPickUpReady1,qDown2Spat(end,:));
-robot.model.plot(qSpat2p1(end,:))
+%robot.model.plot(qSpat2p1,'fps',100)
 % p1 under
 qUnder1 = RMRC(robot,TrPickUpReady1,pattyPose1*troty(pi)*transl(0.15,0,-0.01),qSpat2p1(end,:));
 %robot.model.plot(qUnder1,'fps',100);
 % p1 pickup
 qPickUp1 = RMRC(robot,pattyPose1*troty(pi)*transl(0.15,0,-0.01),pattyPose1*troty(pi)*transl(0.15,0,-0.1),qUnder1(end,:));
-robot.model.plot(qPickUp1,'fps',60);
+%robot.model.plot(qPickUp1,'fps',60);
 % p1 Flip
-
 qFlip1 = RMRC(robot,pattyPose1*troty(pi)*transl(0.15,0,-0.1),robot.model.fkine(qPickUp1(end,:))*troty(pi/4)*transl(0,-0.05,0),qPickUp1(end,:));
-robot.model.plot(qFlip1,'fps',60);
+%robot.model.plot(qFlip1,'fps',60);
+
+%% Flip 2
+% p1 Flip to p2
+TrPickUpReady2 = pattyPose2*troty(pi)*transl(0.15,0,-0.1)*troty(pi/4);
+qp12p2 = RMRC(robot,robot.model.fkine(qFlip1(end,:)),TrPickUpReady2,qFlip1(end,:));
+%robot.model.plot(qp12p2)
+% p2 under
+qUnder2 = RMRC(robot,TrPickUpReady2,pattyPose2*troty(pi)*transl(0.15,0,-0.01),qp12p2(end,:));
+%robot.model.plot(qUnder2,'fps',100);
+% p2 pickup
+qPickUp2 = RMRC(robot,pattyPose2*troty(pi)*transl(0.15,0,-0.01),pattyPose2*troty(pi)*transl(0.15,0,-0.1),qUnder2(end,:));
+robot.model.plot(qPickUp2,'fps',200);
+% p2 Flip
+qFlip2 = RMRC(robot,pattyPose2*troty(pi)*transl(0.15,0,-0.1),robot.model.fkine(qPickUp2(end,:))*troty(pi/4)*transl(0,0.1,0),qPickUp2(end,:));
+robot.model.plot(qFlip2,'fps',60);
+
+
+
+
 
 % qMatrix = RMRC(robot,transl(0.5,-0.2,0.7),transl(0.5,0.5,0.7),qn);
 % for i = 1:size(qMatrix,1)
