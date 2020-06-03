@@ -89,7 +89,7 @@ classdef  CR5<handle
         % outside a triangle (result ==0 )
 
         %%%%%%%%%%%%%%%%
-        function [qMatrix] = RMRC(self,T1,T2)
+        function [qMatrix] = RMRC(self,T1,T2,qn)
             t = 3;                        % total time
             deltaT = 0.05;                % Step frequency
             steps =  t/deltaT;            % Number of simulation steps
