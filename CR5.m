@@ -1,11 +1,15 @@
 %% Dobot CR5 Class
 classdef  CR5<handle
     properties
-        MountPos;
         model;
         workspace = [-2 2 -2 2 -0.2 2];
-        qn = deg2rad([0    0   -100     0    90     0]);  
+        qn = deg2rad([0    0   -100     0    90     0]);
         qMatrix;
+        objPos;
+        Dis;
+%         cam = CentralCamera('focal', 0.08, 'pixel', 10e-5, ...
+%             'resolution', [1024 1024], 'centre', [512 512],'name', 'UR10camera');
+
     end
     
     methods
@@ -16,15 +20,20 @@ classdef  CR5<handle
         
         function GetCR5(self)
             
-            L(1) = Link('d',0.147,'a',0,'alpha',pi/2,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
-            L(2) = Link('d',0.025,'a',0.427,'alpha',0,'offset',pi/2,'qlim',[-deg2rad(180) deg2rad(180)]);
-            L(3) = Link('d',0,'a',0.357,'alpha',0,'offset',0,'qlim',[-deg2rad(160) deg2rad(160)]);
-            L(4) = Link('d',0.116,'a',0,'alpha',pi/2,'offset',pi/2,'qlim',[-deg2rad(180) deg2rad(180)]);
-            L(5) = Link('d',0.116,'a',0,'alpha',-pi/2,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
+%             L(1) = Link('d',0.147,'a',0,'alpha',pi/2,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
+%             L(2) = Link('d',0.025,'a',0.427,'alpha',0,'offset',pi/2,'qlim',[-deg2rad(180) deg2rad(180)]);
+%             L(3) = Link('d',0,'a',0.357,'alpha',0,'offset',0,'qlim',[-deg2rad(160) deg2rad(160)]);
+%             L(4) = Link('d',0.116,'a',0,'alpha',pi/2,'offset',pi/2,'qlim',[-deg2rad(180) deg2rad(180)]);
+%             L(5) = Link('d',0.116,'a',0,'alpha',-pi/2,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
+%             L(6) = Link('d',0.114,'a',0,'alpha',0,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
+            L(1) = Link('d',0.147,'a',0,'alpha',pi/2,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
+            L(2) = Link('d',0.025,'a',0.427,'alpha',0,'offset',pi/2,'qlim',[-deg2rad(360) deg2rad(360)]);
+            L(3) = Link('d',0,'a',0.357,'alpha',0,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
+            L(4) = Link('d',0.116,'a',0,'alpha',pi/2,'offset',pi/2,'qlim',[-deg2rad(360) deg2rad(360)]);
+            L(5) = Link('d',0.116,'a',0,'alpha',-pi/2,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
             L(6) = Link('d',0.114,'a',0,'alpha',0,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
-            
             self.model = SerialLink(L,'name',['CR5']);
-            self.model.base = transl(0,0,0.5);   
+            self.model.base = transl(0,0,0.5);
             
         end
         %     function PlotAndColour()
@@ -36,7 +45,7 @@ classdef  CR5<handle
         % Given a robot index, add the glyphs (vertices and faces) and
         % colour them in if data is available
         function PlotAndColourRobot(self)
-            q= deg2rad([0    0   -100     0    90     0]) ; 
+            q= deg2rad([0    0   -100     0    90     0]) ;
             self.model.plot(q,'floorlevel',0);
         end
         %         function PlotAndColourRobot(self)%robot,workspace)
@@ -80,14 +89,14 @@ classdef  CR5<handle
         %% LinePlaneIntersection
         
         %% Is Collision (REF: LAB 5 SOLUTION ON UTSONLINE)
-
+        
         %% GET LINK POSES (REF: LAB 5 SOLUTION ON UTSONLINE)
         %% IsIntersectionPointInsideTriangle
         % Given a point which is known to be on the same plane as the triangle
         % determine if the point is
         % inside (result == 1) or
         % outside a triangle (result ==0 )
-
+        
         %%%%%%%%%%%%%%%%
         function [qMatrix] = RMRC(self,T1,T2)
             t = 3;                        % total time
@@ -149,7 +158,18 @@ classdef  CR5<handle
                 qMatrix(i+1,:) = qMatrix(i,:) + deltaT*qdot(i,:);
                 
             end
+        end
+        %%
+        function CalDis(self) %%Calculate distance from robot to any object
+            A = self.model.fkine(self.model.getpos());
+            A = A(1:3,end);
+            self.Dis = sqrt((self.objPos(1)-A(1))^2 + (self.objPos(2)-A(2))^2 + (self.objPos(3)-A(3))^2);
+        end
+        %% Set up the camera
+        function SUCam(self)
+            
             
         end
+        
     end
 end
