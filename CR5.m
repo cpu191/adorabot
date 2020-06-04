@@ -21,7 +21,7 @@ classdef  CR5<handle
             L(3) = Link('d',0,'a',0.357,'alpha',0,'offset',0,'qlim',[-deg2rad(160) deg2rad(160)]);
             L(4) = Link('d',0.116,'a',0,'alpha',pi/2,'offset',pi/2,'qlim',[-deg2rad(180) deg2rad(180)]);
             L(5) = Link('d',0.116,'a',0,'alpha',-pi/2,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
-            L(6) = Link('d',0.114,'a',0,'alpha',0,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
+            L(6) = Link('d',0.005,'a',0,'alpha',0,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
             
             self.model = SerialLink(L,'name',['CR5']);
             self.model.base = transl(0,0,0.5);   
@@ -35,43 +35,43 @@ classdef  CR5<handle
         %% PlotAndColourRobot
         % Given a robot index, add the glyphs (vertices and faces) and
         % colour them in if data is available
-        function PlotAndColourRobot(self)
-            q= deg2rad([0    0   -100     0    90     0]) ; 
-            self.model.plot(q,'floorlevel',0);
-        end
-        %         function PlotAndColourRobot(self)%robot,workspace)
-        %             for linkIndex = 0:self.model.n
-        % %                 if self.useGripper && linkIndex == self.model.n
-        % %                     [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['UR5Link',num2str(linkIndex),'Gripper.ply'],'tri'); %#ok<AGROW>
-        % %                 else
-        %                     [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['UR5Link',num2str(linkIndex),'.ply'],'tri'); %#ok<AGROW>
-        % %                 end
-        %                 self.model.faces{linkIndex+1} = faceData;
-        %                 self.model.points{linkIndex+1} = vertexData;
-        %             end
-        %
-        %             % Display robot
-        %             self.model.plot3d(zeros(1,self.model.n),'noarrow','workspace',self.workspace);
-        %             if isempty(findobj(get(gca,'Children'),'Type','Light'))
-        %                 camlight
-        %             end
-        %             self.model.delay = 0;
-        %
-        %             % Try to correctly colour the arm (if colours are in ply file data)
-        %             for linkIndex = 0:self.model.n
-        %                 handles = findobj('Tag', self.model.name);
-        %                 h = get(handles,'UserData');
-        %                 try
-        %                     h.link(linkIndex+1).Children.FaceVertexCData = [plyData{linkIndex+1}.vertex.red ...
-        %                         , plyData{linkIndex+1}.vertex.green ...
-        %                         , plyData{linkIndex+1}.vertex.blue]/255;
-        %                     h.link(linkIndex+1).Children.FaceColor = 'interp';
-        %                 catch ME_1
-        %                     disp(ME_1);
-        %                     continue;
+%         function PlotAndColourRobot(self)
+%             q= deg2rad([0    0   -100     0    90     0]) ; 
+%             self.model.plot(q,'floorlevel',0);
+%         end
+                function PlotAndColourRobot(self)%robot,workspace)
+                    for linkIndex = 0:self.model.n
+        %                 if self.useGripper && linkIndex == self.model.n
+        %                     [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['UR5Link',num2str(linkIndex),'Gripper.ply'],'tri'); %#ok<AGROW>
+        %                 else
+                            [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['UR5Link',num2str(linkIndex),'.ply'],'tri'); %#ok<AGROW>
         %                 end
-        %             end
-        %         end
+                        self.model.faces{linkIndex+1} = faceData;
+                        self.model.points{linkIndex+1} = vertexData;
+                    end
+        
+                    % Display robot
+                    self.model.plot3d(zeros(1,self.model.n),'noarrow','workspace',self.workspace);
+                    if isempty(findobj(get(gca,'Children'),'Type','Light'))
+                        camlight
+                    end
+                    self.model.delay = 0;
+        
+                    % Try to correctly colour the arm (if colours are in ply file data)
+                    for linkIndex = 0:self.model.n
+                        handles = findobj('Tag', self.model.name);
+                        h = get(handles,'UserData');
+                        try
+                            h.link(linkIndex+1).Children.FaceVertexCData = [plyData{linkIndex+1}.vertex.red ...
+                                , plyData{linkIndex+1}.vertex.green ...
+                                , plyData{linkIndex+1}.vertex.blue]/255;
+                            h.link(linkIndex+1).Children.FaceColor = 'interp';
+                        catch ME_1
+                            disp(ME_1);
+                            continue;
+                        end
+                    end
+                end
         
         %% Avoid Collision
         %         function AvoidCollison(self)
@@ -95,7 +95,7 @@ classdef  CR5<handle
             steps =  t/deltaT;            % Number of simulation steps
             q0 = zeros(1,6);              % Initial guess
             qMatrix = zeros(steps,6);     % qMatrix Initialize
-            qDot = zeros(steps,6);
+            qdot = zeros(steps,6);
             epsilon = 0.1;
             m = zeros(steps,1);           % Manipulability matrix
             position = zeros(3,steps);    % location of the transform

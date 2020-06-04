@@ -58,7 +58,7 @@ updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
 spat_h.Vertices = updatedSpatPosition(:,1:3);
 drawnow();
 
-%% Start the work
+%% Compute qMatrices
 
 %% qn to Fry
 TrN = robot.model.fkine(qn);
@@ -99,13 +99,56 @@ qUnder2 = RMRC(robot,TrPickUpReady2,pattyPose2*troty(pi)*transl(0.15,0,-0.01),qp
 %robot.model.plot(qUnder2,'fps',100);
 % p2 pickup
 qPickUp2 = RMRC(robot,pattyPose2*troty(pi)*transl(0.15,0,-0.01),pattyPose2*troty(pi)*transl(0.15,0,-0.1),qUnder2(end,:));
-robot.model.plot(qPickUp2,'fps',200);
+%robot.model.plot(qPickUp2,'fps',200);
 % p2 Flip
-qFlip2 = RMRC(robot,pattyPose2*troty(pi)*transl(0.15,0,-0.1),robot.model.fkine(qPickUp2(end,:))*troty(pi/4)*transl(0,0.1,0),qPickUp2(end,:));
-robot.model.plot(qFlip2,'fps',60);
+
+qFlip2 = repmat(qPickUp2(end,:),150,1);
+prev = qPickUp2(end,:);
+qFlip2(1,:) = prev;
+for i = 2:150
+    qFlip2(i,5) = qFlip2(i-1,5)-(deg2rad(90-74)/100);
+end
+robot.model.plot(qFlip2,'fps',30);
+
+%% Flip 3
+% p2 Flip to p3
+TrPickUpReady3 = pattyPose3*troty(pi)*transl(0.15,0,-0.1)*troty(pi/4);
+qp22p3 = RMRC(robot,robot.model.fkine(qFlip2(end,:)),TrPickUpReady3,qFlip2(end,:));
+%robot.model.plot(qp22p3)
+% p3 under
+qUnder3 = RMRC(robot,TrPickUpReady3,pattyPose3*troty(pi)*transl(0.15,0,-0.01),qp22p3(end,:));
+%robot.model.plot(qUnder3,'fps',100);
+% p3 pickup
+qPickUp3 = RMRC(robot,pattyPose3*troty(pi)*transl(0.15,0,-0.01),pattyPose3*troty(pi)*transl(0.15,0,-0.1),qUnder3(end,:));
+%robot.model.plot(qPickUp3,'fps',200);
+% p3 Flip
+qFlip3 = repmat(qPickUp3(end,:),150,1);
+prev = qPickUp3(end,:);
+qFlip3(1,:) = prev;
+for i = 2:150
+    qFlip3(i,5) = qFlip3(i-1,5)-(deg2rad(90-74)/100)
+end
+%robot.model.plot(qFlip3,'fps',30);
 
 
-
+% p4 Flip to p4
+TrPickUpReady4 = pattyPose4*troty(pi)*transl(0.15,0,-0.1)*troty(pi/4);
+qp32p4 = RMRC(robot,robot.model.fkine(qFlip3(end,:)),TrPickUpReady4,qFlip3(end,:));
+robot.model.plot3d(qp32p4)
+% p4 under
+qUnder4 = RMRC(robot,TrPickUpReady4,pattyPose4*troty(pi)*transl(0.15,0,-0.01),qp32p4(end,:));
+robot.model.plot3d(qUnder4,'fps',100);
+% p3 pickup
+qPickUp4 = RMRC(robot,pattyPose4*troty(pi)*transl(0.15,0,-0.01),pattyPose4*troty(pi)*transl(0.15,0,-0.1),qUnder4(end,:));
+robot.model.plot3d(qPickUp4,'fps',200);
+% p3 Flip
+qFlip4 = repmat(qPickUp4(end,:),150,1);
+prev = qPickUp4(end,:);
+qFlip4(1,:) = prev;
+for i = 2:150
+    qFlip4(i,5) = qFlip4(i-1,5)-(deg2rad(90-74)/100)
+end
+robot.model.plot3d(qFlip4,'fps',30);
 
 
 % qMatrix = RMRC(robot,transl(0.5,-0.2,0.7),transl(0.5,0.5,0.7),qn);
