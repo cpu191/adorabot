@@ -19,88 +19,29 @@ classdef  CR5<handle
         end
         
         function GetCR5(self)
-            
-<<<<<<< HEAD
-%             L(1) = Link('d',0.147,'a',0,'alpha',pi/2,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
-%             L(2) = Link('d',0.025,'a',0.427,'alpha',0,'offset',pi/2,'qlim',[-deg2rad(180) deg2rad(180)]);
-%             L(3) = Link('d',0,'a',0.357,'alpha',0,'offset',0,'qlim',[-deg2rad(160) deg2rad(160)]);
-%             L(4) = Link('d',0.116,'a',0,'alpha',pi/2,'offset',pi/2,'qlim',[-deg2rad(180) deg2rad(180)]);
-%             L(5) = Link('d',0.116,'a',0,'alpha',-pi/2,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
-%             L(6) = Link('d',0.114,'a',0,'alpha',0,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
-            L(1) = Link('d',0.147,'a',0,'alpha',pi/2,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
+            jlim = 360;
+            L(1) = Link('d',0.147,'a',0,'alpha',pi/2,'offset',0,'qlim',[-deg2rad(jlim) deg2rad(jlim)]);
             L(2) = Link('d',0.025,'a',0.427,'alpha',0,'offset',pi/2,'qlim',[-deg2rad(360) deg2rad(360)]);
-            L(3) = Link('d',0,'a',0.357,'alpha',0,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
-            L(4) = Link('d',0.116,'a',0,'alpha',pi/2,'offset',pi/2,'qlim',[-deg2rad(360) deg2rad(360)]);
-            L(5) = Link('d',0.116,'a',0,'alpha',-pi/2,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
-            L(6) = Link('d',0.114,'a',0,'alpha',0,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
-=======
-            L(1) = Link('d',0.147,'a',0,'alpha',pi/2,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
-            L(2) = Link('d',0.025,'a',0.427,'alpha',0,'offset',pi/2,'qlim',[-deg2rad(180) deg2rad(180)]);
-            L(3) = Link('d',0,'a',0.357,'alpha',0,'offset',0,'qlim',[-deg2rad(160) deg2rad(160)]);
-            L(4) = Link('d',0.116,'a',0,'alpha',pi/2,'offset',pi/2,'qlim',[-deg2rad(180) deg2rad(180)]);
-            L(5) = Link('d',0.116,'a',0,'alpha',-pi/2,'offset',0,'qlim',[-deg2rad(180) deg2rad(180)]);
-            L(6) = Link('d',0.005,'a',0,'alpha',0,'offset',0,'qlim',[-deg2rad(360) deg2rad(360)]);
+            L(3) = Link('d',0,'a',0.357,'alpha',0,'offset',0,'qlim',[-deg2rad(jlim) deg2rad(jlim)]);
+            L(4) = Link('d',0.116,'a',0,'alpha',pi/2,'offset',pi/2,'qlim',[-deg2rad(jlim) deg2rad(jlim)]);
+            L(5) = Link('d',0.116,'a',0,'alpha',-pi/2,'offset',0,'qlim',[-deg2rad(jlim) deg2rad(jlim)]);
+            L(6) = Link('d',0.1,'a',0,'alpha',0,'offset',0,'qlim',[-deg2rad(jlim) deg2rad(jlim)]);
             
->>>>>>> 237e332ec77bbd68c6b306604b2434accdd270ae
+
             self.model = SerialLink(L,'name',['CR5']);
-            self.model.base = transl(0,0,0.5);
+            self.model.base = transl(-0.13,0,0.4);
+            %transl(-0.13,0.02,0.38);
+            %transl(-0.07,0.2,0.38);
             
         end
-        %     function PlotAndColour()
-        %         for linkInd = 0:self.model.n
-        %
-        
-        
-        %% PlotAndColourRobot
-        % Given a robot index, add the glyphs (vertices and faces) and
-        % colour them in if data is available
-<<<<<<< HEAD
-        function PlotAndColourRobot(self)
-            q= deg2rad([0    0   -100     0    90     0]) ;
-            self.model.plot(q,'floorlevel',0);
-        end
-        %         function PlotAndColourRobot(self)%robot,workspace)
-        %             for linkIndex = 0:self.model.n
-        % %                 if self.useGripper && linkIndex == self.model.n
-        % %                     [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['UR5Link',num2str(linkIndex),'Gripper.ply'],'tri'); %#ok<AGROW>
-        % %                 else
-        %                     [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['UR5Link',num2str(linkIndex),'.ply'],'tri'); %#ok<AGROW>
-        % %                 end
-        %                 self.model.faces{linkIndex+1} = faceData;
-        %                 self.model.points{linkIndex+1} = vertexData;
-        %             end
-        %
-        %             % Display robot
-        %             self.model.plot3d(zeros(1,self.model.n),'noarrow','workspace',self.workspace);
-        %             if isempty(findobj(get(gca,'Children'),'Type','Light'))
-        %                 camlight
-        %             end
-        %             self.model.delay = 0;
-        %
-        %             % Try to correctly colour the arm (if colours are in ply file data)
-        %             for linkIndex = 0:self.model.n
-        %                 handles = findobj('Tag', self.model.name);
-        %                 h = get(handles,'UserData');
-        %                 try
-        %                     h.link(linkIndex+1).Children.FaceVertexCData = [plyData{linkIndex+1}.vertex.red ...
-        %                         , plyData{linkIndex+1}.vertex.green ...
-        %                         , plyData{linkIndex+1}.vertex.blue]/255;
-        %                     h.link(linkIndex+1).Children.FaceColor = 'interp';
-        %                 catch ME_1
-        %                     disp(ME_1);
-        %                     continue;
-=======
-%         function PlotAndColourRobot(self)
-%             q= deg2rad([0    0   -100     0    90     0]) ; 
-%             self.model.plot(q,'floorlevel',0);
-%         end
+
                 function PlotAndColourRobot(self)%robot,workspace)
+%                     self.model.plot(self.qn)
                     for linkIndex = 0:self.model.n
         %                 if self.useGripper && linkIndex == self.model.n
         %                     [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['UR5Link',num2str(linkIndex),'Gripper.ply'],'tri'); %#ok<AGROW>
         %                 else
                             [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['UR5Link',num2str(linkIndex),'.ply'],'tri'); %#ok<AGROW>
->>>>>>> 237e332ec77bbd68c6b306604b2434accdd270ae
         %                 end
                         self.model.faces{linkIndex+1} = faceData;
                         self.model.points{linkIndex+1} = vertexData;
@@ -108,6 +49,7 @@ classdef  CR5<handle
         
                     % Display robot
                     self.model.plot3d(zeros(1,self.model.n),'noarrow','workspace',self.workspace);
+                    axis([-1.5 1.5 -1.5 1.5 0 3]);
                     if isempty(findobj(get(gca,'Children'),'Type','Light'))
                         camlight
                     end
@@ -145,14 +87,14 @@ classdef  CR5<handle
         % outside a triangle (result ==0 )
         
         %%%%%%%%%%%%%%%%
-        function [qMatrix] = RMRC(self,T1,T2,qn)
+        function [qMatrix] = RMRC(self,T1,T2,qi)
             t = 1.5;                        % total time
             deltaT = 0.01;                % Step frequency
             steps =  t/deltaT;            % Number of simulation steps
             q0 = zeros(1,6);              % Initial guess
             qMatrix = zeros(steps,6);     % qMatrix Initialize
             qdot = zeros(steps,6);
-            epsilon = 0.1;
+            epsilon = 1.5 ;
             m = zeros(steps,1);           % Manipulability matrix
             position = zeros(3,steps);    % location of the transform
             theta = zeros(3,steps);       % Orientation of the transform
@@ -170,7 +112,7 @@ classdef  CR5<handle
                 theta(2,i) = (1-s(i))*orient1(2) + s(i)*orient2(2); % Pitch
                 theta(3,i) = (1-s(i))*orient1(3) + s(i)*orient2(3); % Yaw
             end
-            qMatrix(1,:) = self.model.ikcon(T1,qn);                      % Setup the first point
+            qMatrix(1,:) = qi;                      % Setup the first point
             %% Start RMRC (Reference UTSOnline Robotic Week 9)
             for i = 1:steps - 1
                 T = self.model.fkine(qMatrix(i,:));
@@ -215,12 +157,10 @@ classdef  CR5<handle
         %% Set up the camera
         function SUCam(self)
             
-            
-<<<<<<< HEAD
+
         end
-        
-=======
+
         end 
->>>>>>> 237e332ec77bbd68c6b306604b2434accdd270ae
+
     end
-end
+  

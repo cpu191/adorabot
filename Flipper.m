@@ -2,16 +2,13 @@
 function [] = Flipper()
 close all
 clear all
+set(0,'DefaultFigureWindowStyle','docked');
 qn = deg2rad([0    0   -100     0    90     0]);
 q0 = deg2rad([0    0   -100     90    90     0]);
 robot = CR5;
-robot.model.animate(q0);
-%robot.model.teach
 Tc0 = robot.model.fkine(q0);
-
 centerpnt = [0.5,0.5,0.5];
-<<<<<<< HEAD
-side = 0.5
+side = 0.5;
 vertex = [0.75 0.5 0.8;0.75 -0.5 0.8;0.75 0 1.8];
 % P = [0.75 0.75 0.75 0.75;
 %     -0.2 0.2 -0.2 0.2;
@@ -31,20 +28,16 @@ hold on
 % updatedRec = updatedRec(:,1:3);
 % patch('Faces',faces,'Vertices',updatedRec,'FaceVertexCData',tcolor,'FaceColor','flat','lineStyle','none');
 
-patch('Faces',faces,'Vertices',vertex,'FaceColor','green','lineStyle','none');
-patch('Faces',facesP,'Vertices',P','FaceColor','red','lineStyle','none');
+%patch('Faces',faces,'Vertices',vertex,'FaceColor','green','lineStyle','none');
+%patch('Faces',facesP,'Vertices',P','FaceColor','red','lineStyle','none');
 
 %%%%%%%%%%
-=======
-side = 0.5;
-plotOptions.plotFaces = true;
-%[vertex,faces,faceNormals] = RectangularPrism(centerpnt-side/2, centerpnt+side/2,plotOptions);
->>>>>>> 237e332ec77bbd68c6b306604b2434accdd270ae
-% axis([-2 2 -2 2 0 3]);
+
+
 pStar = [662 362 362 662; 362 362 662 662];
 cam = CentralCamera('focal', 0.08, 'pixel', 10e-5, ...
-'resolution', [1024 1024], 'centre', [512 512],'name', 'CR5camera');
-cam.project(P)
+    'resolution', [1024 1024], 'centre', [512 512],'name', 'CR5camera');
+cam.project(P);
 fps = 25;
 
 %Define values
@@ -53,111 +46,16 @@ lambda = 0.6;
 %depth of the IBVS
 depth = mean (P(1,:));
 axis equal
-<<<<<<< HEAD
-%%%%%%%%%%%%%%
-% ovenPose = transl(0.7,0,0)*trotz(pi/2);
-% pattyPose1 = transl(0.5,-0.7,0.7);
-% pattyPose2 = transl(0.5,-0.4,0.7);
-% pattyPose3 = transl(0.7,-0.4,0.7);
-% pattyPose4 = transl(0.7,-0.7,0.7);
-% fryPose = transl(0.3,0.3,0.7)*trotz(-pi/2);
-% spatPose = robot.model.fkine(qn)*trotz(pi)*troty(pi);
-%%%%
-% plot camera and points
-cam.T = Tc0;
-cam.plot_camera('Tcam',Tc0, 'label','scale',0.15);
-plot_sphere(P, 0.05, 'b');
-lighting gouraud
-light
-p = cam.plot(P, 'Tcam', Tc0);
-cam.plot(pStar, '*'); % create the camera view
-cam.hold(true);
-cam.plot(P, 'Tcam', Tc0, 'o'); % create the camera view
-pause(2)
 
-cam.hold(true);
-cam.plot(P);    % show initial view
-
-
-%Initialise display arrays
-vel_p = [];
-uv_p = [];
-history = [];
-%%%%%%%%%%%%%%%%
-%[qMatrix] = RMRC(robot,pattyPose1*troty(pi),pattyPose2*troty(pi))
-% qMatrix = RMRC(robot,transl(0.5,-0.2,0.7),transl(0.5,0.5,0.7));
-% for i = 1:size(qMatrix,1)
-%     result = IsCollision(robot.model,qMatrix(i+2,:),faces,vertex,faceNormals);
-%     if result
-%         break;
-%     end
-%     robot.model.animate(qMatrix(i,:));
-%     drawnow();
-% end
-%robot.model.plot(qMatrix)
-%%%%%%%%%%%%%%%
-%% Trial
-ksteps = 0;
- while true
-        ksteps = ksteps + 1;
-        
-        % compute the view of the camera
-        uv = cam.plot(P);
-        
-        % compute image plane error as a column
-        e = pStar-uv;   % feature error
-        e = e(:);
-        Zest = [];
-        
-        % compute the Jacobian
-        if isempty(depth)
-            % exact depth from simulation (not possible in practice)
-            pt = homtrans(inv(Tcam), P);
-            J = cam.visjac_p(uv, pt(3,:) );
-        elseif ~isempty(Zest)
-            J = cam.visjac_p(uv, Zest);
-        else
-            J = cam.visjac_p(uv, depth );
-        end
-
-        % compute the velocity of camera in camera frame
-        try
-            v = lambda * pinv(J) * e;
-        catch
-            status = -1;
-            return
-        end
-        fprintf('v: %.3f %.3f %.3f %.3f %.3f %.3f\n', v);
-
-        %compute robot's Jacobian and inverse
-        J2 = robot.model.jacobn(q0);
-        Jinv = pinv(J2);
-        % get joint velocities
-        qp = Jinv*v;
-
-         
-         %Maximum angular velocity cannot exceed 180 degrees/s
-         ind=find(qp>pi);
-         if ~isempty(ind)
-             qp(ind)=pi;
-         end
-         ind=find(qp<-pi);
-         if ~isempty(ind)
-             qp(ind)=-pi;
-         end
-
-        %Update joints 
-        q = q0 + (1/fps)*qp;
-        robot.model.animate(q');
-=======
 hold on;
 ovenPose = transl(0.7,0,0)*trotz(pi/2);
-pattyPose1 = transl(0.55,-0.55,0.5);
-pattyPose2 = transl(0.55,-0.2,0.5);
-pattyPose3 = transl(0.7,-0.2,0.5);
-pattyPose4 = transl(0.7,-0.55,0.5);
+pattyPose1 = transl(0.55,-0.55,0.5)*trotz(-pi/2);
+pattyPose2 = transl(0.55,-0.2,0.5)*trotz(-pi/2);
+pattyPose3 = transl(0.7,-0.2,0.5)*trotz(-pi/2);
+pattyPose4 = transl(0.7,-0.55,0.5)*trotz(-pi/2);
 fryPose = transl(0.35,0.25,0.67)*trotz(-pi/2);
 spatPose = transl(0.35,-0.08,0.52)*trotz(-pi/2);
+EE2Patty = transl(0,0.08,0);
 %[qMatrix] = RMRC(robot,pattyPose1*troty(pi),pattyPose2*troty(pi))
 
 
@@ -202,43 +100,52 @@ drawnow();
 
 %% qn to Fry
 TrN = robot.model.fkine(qn);
-qN2Fry = RMRC(robot,TrN,fryPose*troty(pi),qn);
-%robot.model.plot(qN2Fry)
+qN2Fry = RMRC(robot,TrN,fryPose*troty(pi)*trotz(pi/2),qn);
+%robot.model.plot(qN2Fry,'fps',300)
 
 %% qFry to Down
-Tdown = fryPose*troty(pi)*transl(0,0,0.2);
-qFry2Down = RMRC(robot,fryPose*troty(pi),Tdown,qN2Fry(end,:)); % robot qMatrix
-%robot.model.animate(qFry2Down)
+Tdown = fryPose*troty(pi)*trotz(pi/2)*transl(0,0,0.2);
+qFry2Down = RMRC(robot,robot.model.fkine(qN2Fry(end,:)),Tdown,qN2Fry(end,:)); % robot qMatrix
+%robot.model.plot(qFry2Down,'fps',100)
 
 %% q Down to qSpat
-qDown2Spat = RMRC(robot,Tdown,spatPose*troty(pi),qFry2Down(end,:));
+qDown2Spat = RMRC(robot,robot.model.fkine(qFry2Down(end,:)),spatPose*troty(pi),qFry2Down(end,:));
 %robot.model.plot(qDown2Spat,'fps',100)
 
 %% Flip 1
 % Spat to p1
-TrPickUpReady1 = pattyPose1*troty(pi)*transl(0.15,0,-0.1)*troty(pi/4);
-qSpat2p1 = RMRC(robot,spatPose,TrPickUpReady1,qDown2Spat(end,:));
-%robot.model.plot(qSpat2p1,'fps',100)
+TrPickUpReady1 = pattyPose1*transl(0,-0.15,0)*troty(pi);
+qSpat2p1 = RMRC(robot,robot.model.fkine(qDown2Spat(end,:)),TrPickUpReady1,qDown2Spat(end,:));
+%robot.model.plot(qSpat2p1,'fps',200)
 % p1 under
-qUnder1 = RMRC(robot,TrPickUpReady1,pattyPose1*troty(pi)*transl(0.15,0,-0.01),qSpat2p1(end,:));
-%robot.model.plot(qUnder1,'fps',100);
+qUnder1 = RMRC(robot,robot.model.fkine(qSpat2p1(end,:)),pattyPose1*troty(pi)*transl(0,-0.08,-0.01),qSpat2p1(end,:));
+%robot.model.plot(qUnder1,'fps',200);
+
+toUnder1 = vertcat(qSpat2p1,qUnder1);
+
 % p1 pickup
-qPickUp1 = RMRC(robot,pattyPose1*troty(pi)*transl(0.15,0,-0.01),pattyPose1*troty(pi)*transl(0.15,0,-0.1),qUnder1(end,:));
-%robot.model.plot(qPickUp1,'fps',60);
+qPickUp1 = RMRC(robot,robot.model.fkine(qUnder1(end,:)),pattyPose1*troty(pi)*transl(0,-0.08,-0.1),qUnder1(end,:));
+%robot.model.plot(qPickUp1,'fps',200);
+
 % p1 Flip
-qFlip1 = RMRC(robot,pattyPose1*troty(pi)*transl(0.15,0,-0.1),robot.model.fkine(qPickUp1(end,:))*troty(pi/4)*transl(0,-0.05,0),qPickUp1(end,:));
-%robot.model.plot(qFlip1,'fps',60);
+qFlip1 = RMRC(robot,robot.model.fkine(qPickUp1(end,:)),robot.model.fkine(qPickUp1(end,:))*troty(-pi/4)*transl(0,-0.05,0),qPickUp1(end,:));
+%robot.model.plot(qFlip1,'fps',200);
+
+upFlip1 = vertcat(qPickUp1,qFlip1);
 
 %% Flip 2
 % p1 Flip to p2
-TrPickUpReady2 = pattyPose2*troty(pi)*transl(0.15,0,-0.1)*troty(pi/4);
+TrPickUpReady2 = pattyPose2*transl(0,-0.15,0)*troty(pi);
 qp12p2 = RMRC(robot,robot.model.fkine(qFlip1(end,:)),TrPickUpReady2,qFlip1(end,:));
-%robot.model.plot(qp12p2)
+%robot.model.plot(qp12p2,'fps',200)
 % p2 under
-qUnder2 = RMRC(robot,TrPickUpReady2,pattyPose2*troty(pi)*transl(0.15,0,-0.01),qp12p2(end,:));
-%robot.model.plot(qUnder2,'fps',100);
+qUnder2 = RMRC(robot,robot.model.fkine(qp12p2(end,:)),pattyPose2*troty(pi)*transl(0,-0.08,-0.01),qp12p2(end,:));
+%robot.model.plot(qUnder2,'fps',200);
+
+toUnder2 = vertcat(qp12p2,qUnder2);
+
 % p2 pickup
-qPickUp2 = RMRC(robot,pattyPose2*troty(pi)*transl(0.15,0,-0.01),pattyPose2*troty(pi)*transl(0.15,0,-0.1),qUnder2(end,:));
+qPickUp2 = RMRC(robot,robot.model.fkine(qUnder2(end,:)),pattyPose2*troty(pi)*transl(0,-0.08,-0.1),qUnder2(end,:));
 %robot.model.plot(qPickUp2,'fps',200);
 % p2 Flip
 
@@ -248,132 +155,266 @@ qFlip2(1,:) = prev;
 for i = 2:150
     qFlip2(i,5) = qFlip2(i-1,5)-(deg2rad(90-74)/100);
 end
-robot.model.plot(qFlip2,'fps',30);
+%robot.model.plot(qFlip2,'fps',200);
 
+upFlip2 = vertcat(qPickUp2,qFlip2);
 %% Flip 3
 % p2 Flip to p3
-TrPickUpReady3 = pattyPose3*troty(pi)*transl(0.15,0,-0.1)*troty(pi/4);
+TrPickUpReady3 = pattyPose3*transl(0,-0.15,0)*troty(pi);
 qp22p3 = RMRC(robot,robot.model.fkine(qFlip2(end,:)),TrPickUpReady3,qFlip2(end,:));
-%robot.model.plot(qp22p3)
+%robot.model.plot(qp22p3,'fps',200)
 % p3 under
-qUnder3 = RMRC(robot,TrPickUpReady3,pattyPose3*troty(pi)*transl(0.15,0,-0.01),qp22p3(end,:));
-%robot.model.plot(qUnder3,'fps',100);
+qUnder3 = RMRC(robot,robot.model.fkine(qp22p3(end,:)),pattyPose3*troty(pi)*transl(0,-0.08,-0.01),qp22p3(end,:));
+%robot.model.plot(qUnder3,'fps',200);
+
+toUnder3 = vertcat(qp22p3,qUnder3);
+
 % p3 pickup
-qPickUp3 = RMRC(robot,pattyPose3*troty(pi)*transl(0.15,0,-0.01),pattyPose3*troty(pi)*transl(0.15,0,-0.1),qUnder3(end,:));
+qPickUp3 = RMRC(robot,robot.model.fkine(qUnder3(end,:)),pattyPose3*troty(pi)*transl(0,-0.08,-0.1),qUnder3(end,:));
 %robot.model.plot(qPickUp3,'fps',200);
+
 % p3 Flip
 qFlip3 = repmat(qPickUp3(end,:),150,1);
 prev = qPickUp3(end,:);
 qFlip3(1,:) = prev;
 for i = 2:150
-    qFlip3(i,5) = qFlip3(i-1,5)-(deg2rad(90-74)/100)
+    qFlip3(i,5) = qFlip3(i-1,5)-(deg2rad(90-74)/100);
 end
-%robot.model.plot(qFlip3,'fps',30);
->>>>>>> 237e332ec77bbd68c6b306604b2434accdd270ae
+%robot.model.plot(qFlip3,'fps',200);
 
-        %Get camera location
-        Tc = robot.model.fkine(q);
-        cam.T = Tc;
-
-<<<<<<< HEAD
-        drawnow
-        
-        % update the history variables
-        hist.uv = uv(:);
-        vel = v;
-        hist.vel = vel;
-        hist.e = e;
-        hist.en = norm(e);
-        hist.jcond = cond(J);
-        hist.Tcam = Tc;
-        hist.vel_p = vel;
-        hist.uv_p = uv;
-        hist.qp = qp;
-        hist.q = q;
-
-        history = [history hist];
-
-         pause(1/fps)
-
-        if ~isempty(200) && (ksteps > 200)
-            break;
-        end
-        
-        %update current joint position
-        q0 = q;
- end %loop finishes
-%% Loading objects
-% % Load Oven
-% [fOven,vOven,dataOven] = plyread('oven.ply','tri');
-% ovenVertexColours = [dataOven.vertex.red,dataOven.vertex.green,dataOven.vertex.blue] / 255;
-% oven_h = trisurf(fOven,vOven(:,1),vOven(:,2),vOven(:,3),'FaceVertexCData',ovenVertexColours,'EdgeColor','interp','EdgeLighting','flat');
-% updatedOvenPosition = [ovenPose*[vOven,ones(size(vOven,1),1)]']';
-% oven_h.Vertices = updatedOvenPosition(:,1:3);
-%
-% % Load Patties
-% [fPatty,vPatty,dataPatty] = plyread('patty.ply','tri');
-% pattyVertexColours = [dataPatty.vertex.red,dataPatty.vertex.green,dataPatty.vertex.blue] / 255;
-% patty_h1 = trisurf(fPatty,vPatty(:,1),vPatty(:,2),vPatty(:,3),'FaceVertexCData',pattyVertexColours,'EdgeColor','interp','EdgeLighting','flat');
-% patty_h2 = trisurf(fPatty,vPatty(:,1),vPatty(:,2),vPatty(:,3),'FaceVertexCData',pattyVertexColours,'EdgeColor','interp','EdgeLighting','flat');
-% patty_h3 = trisurf(fPatty,vPatty(:,1),vPatty(:,2),vPatty(:,3),'FaceVertexCData',pattyVertexColours,'EdgeColor','interp','EdgeLighting','flat');
-% patty_h4 = trisurf(fPatty,vPatty(:,1),vPatty(:,2),vPatty(:,3),'FaceVertexCData',pattyVertexColours,'EdgeColor','interp','EdgeLighting','flat');
-% updatedPattyPosition1 = [pattyPose1*[vPatty,ones(size(vPatty,1),1)]']';
-% updatedPattyPosition2 = [pattyPose2*[vPatty,ones(size(vPatty,1),1)]']';
-% updatedPattyPosition3 = [pattyPose3*[vPatty,ones(size(vPatty,1),1)]']';
-% updatedPattyPosition4 = [pattyPose4*[vPatty,ones(size(vPatty,1),1)]']';
-% patty_h1.Vertices = updatedPattyPosition1(:,1:3);
-% patty_h2.Vertices = updatedPattyPosition2(:,1:3);
-% patty_h3.Vertices = updatedPattyPosition3(:,1:3);
-% patty_h4.Vertices = updatedPattyPosition4(:,1:3);
-% % Load Fry basket
-% [fFry,vFry,dataFry] = plyread('basket.ply','tri');
-% fryVertexColours = [dataFry.vertex.red,dataFry.vertex.green,dataFry.vertex.blue] / 255;
-% fry_h = trisurf(fFry,vFry(:,1),vFry(:,2),vFry(:,3),'FaceVertexCData',fryVertexColours,'EdgeColor','interp','EdgeLighting','flat');
-% updatedFryPosition = [fryPose*[vFry,ones(size(vFry,1),1)]']';
-% fry_h.Vertices = updatedFryPosition(:,1:3);
-% % Load Spatula
-% [fSpat,vSpat,dataSpat] = plyread('spatula.ply','tri');
-% spatVertexColours = [dataSpat.vertex.red,dataSpat.vertex.green,dataSpat.vertex.blue] / 255;
-% spat_h = trisurf(fSpat,vSpat(:,1),vSpat(:,2),vSpat(:,3),'FaceVertexCData',spatVertexColours,'EdgeColor','interp','EdgeLighting','flat');
-% updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
-% spat_h.Vertices = updatedSpatPosition(:,1:3);
-% drawnow();
-=======
+upFlip3 = vertcat(qPickUp3,qFlip3);
+%% Flip 4
 % p4 Flip to p4
-TrPickUpReady4 = pattyPose4*troty(pi)*transl(0.15,0,-0.1)*troty(pi/4);
+TrPickUpReady4 = pattyPose4*transl(0,-0.15,0)*troty(pi);
 qp32p4 = RMRC(robot,robot.model.fkine(qFlip3(end,:)),TrPickUpReady4,qFlip3(end,:));
-robot.model.plot3d(qp32p4)
+%robot.model.plot(qp32p4,'fps',200)
 % p4 under
-qUnder4 = RMRC(robot,TrPickUpReady4,pattyPose4*troty(pi)*transl(0.15,0,-0.01),qp32p4(end,:));
-robot.model.plot3d(qUnder4,'fps',100);
-% p3 pickup
-qPickUp4 = RMRC(robot,pattyPose4*troty(pi)*transl(0.15,0,-0.01),pattyPose4*troty(pi)*transl(0.15,0,-0.1),qUnder4(end,:));
-robot.model.plot3d(qPickUp4,'fps',200);
-% p3 Flip
+qUnder4 = RMRC(robot,robot.model.fkine(qp32p4(end,:)),pattyPose4*troty(pi)*transl(0,-0.08,-0.01),qp32p4(end,:));
+%robot.model.plot(qUnder4,'fps',200);
+
+toUnder4 = vertcat(qp32p4,qUnder4);
+
+% p4 pickup
+qPickUp4 = RMRC(robot,robot.model.fkine(qUnder4(end,:)),pattyPose4*troty(pi)*transl(0,-0.08,-0.1),qUnder4(end,:));
+%robot.model.plot(qPickUp4,'fps',200);
+% p4 Flip
 qFlip4 = repmat(qPickUp4(end,:),150,1);
 prev = qPickUp4(end,:);
 qFlip4(1,:) = prev;
 for i = 2:150
-    qFlip4(i,5) = qFlip4(i-1,5)-(deg2rad(90-74)/100)
+    qFlip4(i,5) = qFlip4(i-1,5)-(deg2rad(90-74)/100);
 end
-robot.model.plot3d(qFlip4,'fps',30);
+%robot.model.plot(qFlip4,'fps',200);
 
+upFlip4 = vertcat(qPickUp4,qFlip4);
+
+%% Run through the work
+sUnit = 3; % Number of step every loop
+axis([-1.5 1.5 -1.5 1.5 0 2]);
+
+%Take the fry
+for i = 1: size(qN2Fry,1)
+robot.model.animate(qN2Fry(i,:));
+pause(0.01);
+end
+%Put Fry down
+for i = 1 :sUnit: size(qFry2Down,1)
+    robot.model.animate(qFry2Down(i,:));
+    fryPose = robot.model.fkine(qFry2Down(i,:))*trotz(-pi/2)*troty(pi);
+    updatedFryPosition = [fryPose*[vFry,ones(size(vFry,1),1)]']';
+    fry_h.Vertices = updatedFryPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+%Take spatula
+
+for i = 1: size(qDown2Spat,1)
+robot.model.animate(qDown2Spat(i,:));
+pause(0.01);
+end
+% for i = 1 :sUnit: size(qSpat2p1,1)
+%     robot.model.animate(qSpat2p1(i,:));
+%     spatPose = robot.model.fkine(qSpat2p1(i,:))*troty(pi);
+%     updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+%     spat_h.Vertices = updatedSpatPosition(:,1:3);
+%     drawnow();
+%     pause(0.01);
+% end
+
+%Flip the meat1
+
+ for i = 1 :sUnit: size(toUnder1,1)
+    robot.model.animate(toUnder1(i,:));
+    spatPose = robot.model.fkine(toUnder1(i,:))*troty(pi);
+    updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+    spat_h.Vertices = updatedSpatPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+for i=1:sUnit: size(upFlip1,1)
+    robot.model.animate(upFlip1(i,:));
+    spatPose = robot.model.fkine(upFlip1(i,:))*troty(pi);
+    updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+    pattyPose1 = robot.model.fkine(upFlip1(i,:))*EE2Patty;
+    updatedPattyPosition1 = [pattyPose1*[vPatty,ones(size(vPatty,1),1)]']';
+    patty_h(1).Vertices = updatedPattyPosition1(:,1:3);
+    spat_h.Vertices = updatedSpatPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+% meat1 dropping
+Tmeat = mTraj(pattyPose1,transl(0.55,-0.55,0.5)*trotz(-pi/2)*trotx(pi));
+for i = 1:size(Tmeat,1)
+    pattyPose1 = [ Tmeat(i,1,1),Tmeat(i,1,2),Tmeat(i,1,3),Tmeat(i,1,4);...
+                 , Tmeat(i,2,1),Tmeat(i,2,2),Tmeat(i,2,3),Tmeat(i,2,4);...
+                 , Tmeat(i,3,1),Tmeat(i,3,2),Tmeat(i,3,3),Tmeat(i,3,4);...
+                 , Tmeat(i,4,1),Tmeat(i,4,2),Tmeat(i,4,3),Tmeat(i,4,4)];
+    updatedPattyPosition1 = [pattyPose1*[vPatty,ones(size(vPatty,1),1)]']';
+    patty_h(1).Vertices = updatedPattyPosition1(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+%% Flip the meat2
+% move to patty 2
+for i = 1 :sUnit: size(toUnder2,1)
+    robot.model.animate(toUnder2(i,:));
+    spatPose = robot.model.fkine(toUnder2(i,:))*troty(pi);
+    updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+    spat_h.Vertices = updatedSpatPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+for i=1:sUnit: size(upFlip2,1)
+    robot.model.animate(upFlip2(i,:));
+    spatPose = robot.model.fkine(upFlip2(i,:))*troty(pi);
+    updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+    pattyPose2 = robot.model.fkine(upFlip2(i,:))*EE2Patty;
+    updatedPattyPosition2 = [pattyPose2*[vPatty,ones(size(vPatty,1),1)]']';
+    patty_h(2).Vertices = updatedPattyPosition2(:,1:3);
+    spat_h.Vertices = updatedSpatPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+% meat2 dropping
+Tmeat = mTraj(pattyPose2,transl(0.55,-0.2,0.5)*trotz(-pi/2)*trotx(pi));
+for i = 1:size(Tmeat,1)
+    pattyPose2 = [ Tmeat(i,1,1),Tmeat(i,1,2),Tmeat(i,1,3),Tmeat(i,1,4);...
+                 , Tmeat(i,2,1),Tmeat(i,2,2),Tmeat(i,2,3),Tmeat(i,2,4);...
+                 , Tmeat(i,3,1),Tmeat(i,3,2),Tmeat(i,3,3),Tmeat(i,3,4);...
+                 , Tmeat(i,4,1),Tmeat(i,4,2),Tmeat(i,4,3),Tmeat(i,4,4)];
+    updatedPattyPosition2 = [pattyPose2*[vPatty,ones(size(vPatty,1),1)]']';
+    patty_h(2).Vertices = updatedPattyPosition2(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+
+%% Flip the meat3
+
+% move to patty 3
+for i = 1 :sUnit: size(toUnder3,1)
+    robot.model.animate(toUnder3(i,:));
+    spatPose = robot.model.fkine(toUnder3(i,:))*troty(pi);
+    updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+    spat_h.Vertices = updatedSpatPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+for i=1:sUnit: size(upFlip3,1)
+    robot.model.animate(upFlip3(i,:));
+    spatPose = robot.model.fkine(upFlip3(i,:))*troty(pi);
+    updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+    pattyPose3 = robot.model.fkine(upFlip3(i,:))*EE2Patty;
+    updatedPattyPosition3 = [pattyPose3*[vPatty,ones(size(vPatty,1),1)]']';
+    patty_h(3).Vertices = updatedPattyPosition3(:,1:3);
+    spat_h.Vertices = updatedSpatPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+% meat3 dropping
+Tmeat = mTraj(pattyPose3,transl(0.7,-0.2,0.5)*trotz(-pi/2)*trotx(pi));
+for i = 1:size(Tmeat,1)
+    pattyPose3 = [ Tmeat(i,1,1),Tmeat(i,1,2),Tmeat(i,1,3),Tmeat(i,1,4);...
+                 , Tmeat(i,2,1),Tmeat(i,2,2),Tmeat(i,2,3),Tmeat(i,2,4);...
+                 , Tmeat(i,3,1),Tmeat(i,3,2),Tmeat(i,3,3),Tmeat(i,3,4);...
+                 , Tmeat(i,4,1),Tmeat(i,4,2),Tmeat(i,4,3),Tmeat(i,4,4)];
+    updatedPattyPosition3 = [pattyPose3*[vPatty,ones(size(vPatty,1),1)]']';
+    patty_h(3).Vertices = updatedPattyPosition3(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+%% Flip the meat4
+
+% move to patty 4
+for i = 1 :sUnit: size(toUnder4,1)
+    robot.model.animate(toUnder4(i,:));
+    spatPose = robot.model.fkine(toUnder4(i,:))*troty(pi);
+    updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+    spat_h.Vertices = updatedSpatPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+for i=1:sUnit: size(upFlip4,1)
+    robot.model.animate(upFlip4(i,:));
+    spatPose = robot.model.fkine(upFlip4(i,:))*troty(pi);
+    updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+    pattyPose4 = robot.model.fkine(upFlip4(i,:))*EE2Patty;
+    updatedPattyPosition4 = [pattyPose4*[vPatty,ones(size(vPatty,1),1)]']';
+    patty_h(4).Vertices = updatedPattyPosition4(:,1:3);
+    spat_h.Vertices = updatedSpatPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+% meat4 dropping
+Tmeat = mTraj(pattyPose4,transl(0.7,-0.55,0.5)*trotz(-pi/2)*trotx(pi));
+for i = 1:size(Tmeat,1)
+    pattyPose4 = [ Tmeat(i,1,1),Tmeat(i,1,2),Tmeat(i,1,3),Tmeat(i,1,4);...
+                 , Tmeat(i,2,1),Tmeat(i,2,2),Tmeat(i,2,3),Tmeat(i,2,4);...
+                 , Tmeat(i,3,1),Tmeat(i,3,2),Tmeat(i,3,3),Tmeat(i,3,4);...
+                 , Tmeat(i,4,1),Tmeat(i,4,2),Tmeat(i,4,3),Tmeat(i,4,4)];
+    updatedPattyPosition4 = [pattyPose4*[vPatty,ones(size(vPatty,1),1)]']';
+    patty_h(4).Vertices = updatedPattyPosition4(:,1:3);
+    drawnow();
+    pause(0.01);
+end
 
 % qMatrix = RMRC(robot,transl(0.5,-0.2,0.7),transl(0.5,0.5,0.7),qn);
 % for i = 1:size(qMatrix,1)
 %     result = IsCollision(robot.model,qMatrix(i+2,:),faces,vertex,faceNormals);
-%     if result 
+%     if result
 %         break;
 %     end
-%     
+%
 %     robot.model.animate(qMatrix(i,:));
 %     drawnow();
 % end
 
->>>>>>> 237e332ec77bbd68c6b306604b2434accdd270ae
+
 
 
 end
+
+%% Calculate the meat trajectory
+function [qMeat] = mTraj(trans1,trans2)
+mStep = 50;
+s = lspb(0,1,mStep);
+qMeat = nan(mStep,4,4);
+%qMeat = repmat(nan,4,4)
+for i= 1 : mStep
+    qMeat(i,:,:) = (1-s(i)).*trans1 + s(i).*trans2;
+end
+end
+
 %% LinePlaneIntersection(REF: LAB 5 SOLUTION ON UTSONLINE)
 % Given a plane (normal and point) and two points that make up another line, get the intersection
 % Check == 0 if there is no intersection
