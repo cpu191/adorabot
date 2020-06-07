@@ -97,59 +97,7 @@ history = [];
 %robot.model.plot(qMatrix)
 %%%%%%%%%%%%%%%
 %% Trial
-ksteps = 0;
- while true
-        ksteps = ksteps + 1;
-        
-        % compute the view of the camera
-        uv = cam.plot(P);
-        
-        % compute image plane error as a column
-        e = pStar-uv;   % feature error
-        e = e(:);
-        Zest = [];
-        
-        % compute the Jacobian
-        if isempty(depth)
-            % exact depth from simulation (not possible in practice)
-            pt = homtrans(inv(Tcam), P);
-            J = cam.visjac_p(uv, pt(3,:) );
-        elseif ~isempty(Zest)
-            J = cam.visjac_p(uv, Zest);
-        else
-            J = cam.visjac_p(uv, depth );
-        end
 
-        % compute the velocity of camera in camera frame
-        try
-            v = lambda * pinv(J) * e;
-        catch
-            status = -1;
-            return
-        end
-        fprintf('v: %.3f %.3f %.3f %.3f %.3f %.3f\n', v);
-
-        %compute robot's Jacobian and inverse
-        J2 = robot.model.jacobn(q0);
-        Jinv = pinv(J2);
-        % get joint velocities
-        qp = Jinv*v;
-
-         
-         %Maximum angular velocity cannot exceed 180 degrees/s
-         ind=find(qp>pi);
-         if ~isempty(ind)
-             qp(ind)=pi;
-         end
-         ind=find(qp<-pi);
-         if ~isempty(ind)
-             qp(ind)=-pi;
-         end
-
-        %Update joints 
-        q = q0 + (1/fps)*qp;
-        robot.model.animate(q');
-=======
 hold on;
 ovenPose = transl(0.7,0,0)*trotz(pi/2);
 pattyPose1 = transl(0.55,-0.55,0.5);
