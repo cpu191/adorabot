@@ -10,7 +10,7 @@ Tc0 = robot.model.fkine(q0);
 centerpnt = [0.5,0.5,0.5];
 side = 0.5;
 vertex = [0.75 0.5 0.8;0.75 -0.5 0.8;0.75 0 1.8];
-% P = [0.75 0.75 0.75 0.75;
+% P = [0.75 0.75 5.75 0.75;
 %     -0.2 0.2 -0.2 0.2;
 %     1.2 1.2 0.8 0.8];
 P = [1 1 1 1;
@@ -56,6 +56,9 @@ pattyPose4 = transl(0.7,-0.55,0.5)*trotz(-pi/2);
 fryPose = transl(0.35,0.25,0.67)*trotz(-pi/2);
 spatPose = transl(0.35,-0.08,0.52)*trotz(-pi/2);
 EE2Patty = transl(0,0.08,0);
+lightPose=transl(1.4,0,0);
+lightPose1=transl(0,1.4,0)*trotz(pi/2);
+concretePose1 = robot.model.base;
 %[qMatrix] = RMRC(robot,pattyPose1*troty(pi),pattyPose2*troty(pi))
 
 
@@ -94,6 +97,35 @@ spatVertexColours = [dataSpat.vertex.red,dataSpat.vertex.green,dataSpat.vertex.b
 spat_h = trisurf(fSpat,vSpat(:,1),vSpat(:,2),vSpat(:,3),'FaceVertexCData',spatVertexColours,'EdgeColor','interp','EdgeLighting','flat');
 updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
 spat_h.Vertices = updatedSpatPosition(:,1:3);
+
+%Loading floor 
+floorPose=transl(0,0,0);
+[fFloor,vFloor,dataFloor] = plyread('floor.ply','tri');
+floorVertexColours = [dataFloor.vertex.red,dataFloor.vertex.green,dataFloor.vertex.blue] / 255;
+floor_h = trisurf(fFloor,vFloor(:,1),vFloor(:,2),vFloor(:,3),'FaceVertexCData',floorVertexColours,'EdgeColor','interp','EdgeLighting','flat');
+floorVertexCount = size(vFloor,1);
+updatedFloorPos = [floorPose * [vFloor,ones(floorVertexCount,1)]']';
+floor_h.Vertices = updatedFloorPos(:,1:3);
+
+%Loading Light Curtain
+[fLight,vLight,dataLight] = plyread('lightC.ply','tri');
+lightVertexColours = [dataLight.vertex.red,dataLight.vertex.green,dataLight.vertex.blue] / 255;
+light_h = trisurf(fLight,vLight(:,1),vLight(:,2),vLight(:,3),'FaceVertexCData',lightVertexColours,'EdgeColor','interp','EdgeLighting','flat');
+lightVertexCount = size(vLight,1);
+updatedLightPos = [lightPose * [vLight,ones(lightVertexCount,1)]']';
+light_h.Vertices = updatedLightPos(:,1:3);
+light_h1 = trisurf(fLight,vLight(:,1),vLight(:,2),vLight(:,3),'FaceVertexCData',lightVertexColours,'EdgeColor','interp','EdgeLighting','flat');
+updatedLightPos1 = [lightPose1 * [vLight,ones(lightVertexCount,1)]']';
+light_h1.Vertices = updatedLightPos1(:,1:3);
+
+%loading Robot Base
+[fCube,vCube,dataCube] = plyread('concrete.ply','tri');
+baseVertexColours = [dataCube.vertex.red,dataCube.vertex.green,dataCube.vertex.blue] / 255;
+concrete_h1 = trisurf(fCube,vCube(:,1),vCube(:,2),vCube(:,3),'FaceVertexCData',baseVertexColours,'EdgeColor','interp','EdgeLighting','flat');
+vertexCount = size(vCube,1);
+updatedPosition1 = [concretePose1 * [vCube,ones(vertexCount,1)]']';
+concrete_h1.Vertices = updatedPosition1(:,1:3);
+view(3);
 drawnow();
 
 %% Compute qMatrices
@@ -104,7 +136,7 @@ qN2Fry = RMRC(robot,TrN,fryPose*troty(pi)*trotz(pi/2),qn);
 %robot.model.plot(qN2Fry,'fps',300)
 
 %% qFry to Down
-Tdown = fryPose*troty(pi)*trotz(pi/2)*transl(0,0,0.2);
+Tdown = fryPose*troty(pi)*trotz(pi/2)*transl(0,0,0.15);
 qFry2Down = RMRC(robot,robot.model.fkine(qN2Fry(end,:)),Tdown,qN2Fry(end,:)); % robot qMatrix
 %robot.model.plot(qFry2Down,'fps',100)
 
@@ -208,9 +240,24 @@ end
 
 upFlip4 = vertcat(qPickUp4,qFlip4);
 
+%% Pickup Fry
+% Drop Spatula
+IspatPose = transl(0.35,-0.08,0.52)*trotz(-pi/2)*troty(pi);
+q42Spat = RMRC(robot,robot.model.fkine(qFlip4(end,:)),IspatPose,qFlip4(end,:));
+
+% Goto Fry
+qSpat2Fry = RMRC(robot,robot.model.fkine(q42Spat(end,:)),Tdown,q42Spat(end,:));
+
+% pick up fry
+IfryPose = transl(0.35,0.25,0.67)*trotz(-pi/2);
+qPickUpFry = RMRC(robot,robot.model.fkine(qSpat2Fry(end,:)),IfryPose*troty(pi)*trotz(pi/2),qSpat2Fry(end,:));
+
+% Goback to qn
+qNorm = RMRC(robot,robot.model.fkine(qPickUpFry(end,:)),robot.model.fkine(qn),qPickUpFry(end,:));
+
 %% Run through the work
 sUnit = 3; % Number of step every loop
-axis([-1.5 1.5 -1.5 1.5 0 2]);
+%axis([-1.5 1.5 -1.5 1.5 -0.05 2]);
 
 %Take the fry
 for i = 1: size(qN2Fry,1)
@@ -386,6 +433,38 @@ for i = 1:size(Tmeat,1)
     patty_h(4).Vertices = updatedPattyPosition4(:,1:3);
     drawnow();
     pause(0.01);
+end
+
+%Drop spatula
+for i = 1 :sUnit: size(q42Spat,1)
+    robot.model.animate(q42Spat(i,:));
+    spatPose = robot.model.fkine(q42Spat(i,:))*troty(pi);
+    updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+    spat_h.Vertices = updatedSpatPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+%Go to fry
+for i = 1: size(qSpat2Fry,1)
+robot.model.animate(qSpat2Fry(i,:));
+pause(0.01);
+end
+
+%Pickup Fry
+for i = 1 :sUnit: size(qPickUpFry,1)
+    robot.model.animate(qPickUpFry(i,:));
+    fryPose = robot.model.fkine(qPickUpFry(i,:))*trotz(-pi/2)*troty(pi);
+    updatedFryPosition = [fryPose*[vFry,ones(size(vFry,1),1)]']';
+    fry_h.Vertices = updatedFryPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
+
+%Go back to Ready Position
+for i = 1: size(qNorm,1)
+robot.model.animate(qNorm(i,:));
+pause(0.01);
 end
 
 % qMatrix = RMRC(robot,transl(0.5,-0.2,0.7),transl(0.5,0.5,0.7),qn);

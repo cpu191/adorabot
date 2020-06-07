@@ -41,7 +41,7 @@ classdef  CR5<handle
         %                 if self.useGripper && linkIndex == self.model.n
         %                     [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['UR5Link',num2str(linkIndex),'Gripper.ply'],'tri'); %#ok<AGROW>
         %                 else
-                            [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['UR5Link',num2str(linkIndex),'.ply'],'tri'); %#ok<AGROW>
+                            [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['CR5_',num2str(linkIndex),'.ply'],'tri'); %#ok<AGROW>
         %                 end
                         self.model.faces{linkIndex+1} = faceData;
                         self.model.points{linkIndex+1} = vertexData;
