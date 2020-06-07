@@ -48,8 +48,8 @@ classdef  CR5<handle
                     end
         
                     % Display robot
-                    self.model.plot3d(zeros(1,self.model.n),'noarrow','workspace',self.workspace);
-                    axis([-1.5 1.5 -1.5 1.5 0 3]);
+                    self.model.plot3d(deg2rad([0    0   -100     0    90     0]),'noarrow','workspace',self.workspace);
+                    axis([-1.5 1.5 -1.5 1.5 -0.01 2.5]);
                     if isempty(findobj(get(gca,'Children'),'Type','Light'))
                         camlight
                     end
