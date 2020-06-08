@@ -6,46 +6,9 @@ set(0,'DefaultFigureWindowStyle','docked');
 qn = deg2rad([0    0   -100     0    90     0]);
 q0 = deg2rad([0    0   -100     90    90     0]);
 robot = CR5;
-Tc0 = robot.model.fkine(q0);
-centerpnt = [0.5,0.5,0.5];
-side = 0.5;
-vertex = [0.75 0.5 0.8;0.75 -0.5 0.8;0.75 0 1.8];
-% P = [0.75 0.75 5.75 0.75;
-%     -0.2 0.2 -0.2 0.2;
-%     1.2 1.2 0.8 0.8];
-P = [1 1 1 1;
-    -0.25 0.25 -0.25 0.25;
-    1.3 1.3 0.8 0.8];
-faces = [1 2 3];
-facesP = [1 2 4 3];
-%plotOptions.plotEdges = true;
-% plotOptions.plotFaces = true;
-% [vertex,faces,faceNormals] = RectangularPrism(centerpnt-side/2, centerpnt+side/2,plotOptions);
-%
 hold on
-%%%%%% update position of rectangular
-% updatedRec = [(transl(1,1,1)) * [vertex,ones(size(vertex,1),1)]']';
-% updatedRec = updatedRec(:,1:3);
-% patch('Faces',faces,'Vertices',updatedRec,'FaceVertexCData',tcolor,'FaceColor','flat','lineStyle','none');
-
-%patch('Faces',faces,'Vertices',vertex,'FaceColor','green','lineStyle','none');
-%patch('Faces',facesP,'Vertices',P','FaceColor','red','lineStyle','none');
-
-%%%%%%%%%%
-
-
-pStar = [662 362 362 662; 362 362 662 662];
-cam = CentralCamera('focal', 0.08, 'pixel', 10e-5, ...
-    'resolution', [1024 1024], 'centre', [512 512],'name', 'CR5camera');
-cam.project(P);
-fps = 25;
-
-%Define values
-%gain of the controler
-lambda = 0.6;
-%depth of the IBVS
-depth = mean (P(1,:));
 axis equal
+%% Trial
 
 hold on;
 ovenPose = transl(0.7,0,0)*trotz(pi/2);
@@ -53,7 +16,7 @@ pattyPose1 = transl(0.55,-0.55,0.5)*trotz(-pi/2);
 pattyPose2 = transl(0.55,-0.2,0.5)*trotz(-pi/2);
 pattyPose3 = transl(0.7,-0.2,0.5)*trotz(-pi/2);
 pattyPose4 = transl(0.7,-0.55,0.5)*trotz(-pi/2);
-fryPose = transl(0.35,0.25,0.67)*trotz(-pi/2);
+fryPose = transl(0.35,0.25,0.67)*trotz(-pi/2);%previous Y pos is 0.25 transl(0.35,0.25,0.67)*trotz(-pi/2)
 spatPose = transl(0.35,-0.08,0.52)*trotz(-pi/2);
 EE2Patty = transl(0,0.08,0);
 lightPose=transl(1.4,0,0);
@@ -136,7 +99,7 @@ qN2Fry = RMRC(robot,TrN,fryPose*troty(pi)*trotz(pi/2),qn);
 %robot.model.plot(qN2Fry,'fps',300)
 
 %% qFry to Down
-Tdown = fryPose*troty(pi)*trotz(pi/2)*transl(0,0,0.15);
+Tdown = fryPose*troty(pi)*trotz(pi/2)*transl(0,0,0.15);%previous z is 0.15, y is 0
 qFry2Down = RMRC(robot,robot.model.fkine(qN2Fry(end,:)),Tdown,qN2Fry(end,:)); % robot qMatrix
 %robot.model.plot(qFry2Down,'fps',100)
 
@@ -242,15 +205,15 @@ upFlip4 = vertcat(qPickUp4,qFlip4);
 
 %% Pickup Fry
 % Drop Spatula
-IspatPose = transl(0.35,-0.08,0.52)*trotz(-pi/2)*troty(pi);
+IspatPose = transl(0.35,-0.7,0.52)*trotz(-pi/2)*troty(pi);%%previous Y -0.08
 q42Spat = RMRC(robot,robot.model.fkine(qFlip4(end,:)),IspatPose,qFlip4(end,:));
 
 % Goto Fry
 qSpat2Fry = RMRC(robot,robot.model.fkine(q42Spat(end,:)),Tdown,q42Spat(end,:));
 
 % pick up fry
-IfryPose = transl(0.35,0.25,0.67)*trotz(-pi/2);
-qPickUpFry = RMRC(robot,robot.model.fkine(qSpat2Fry(end,:)),IfryPose*troty(pi)*trotz(pi/2),qSpat2Fry(end,:));
+IfryPose = robot.model.fkine(qN2Fry(end,:));%transl(0.35,0.25,0.67)*trotz(-pi/2)
+qPickUpFry = RMRC(robot,robot.model.fkine(qSpat2Fry(end,:)),robot.model.fkine(qN2Fry(end,:)),qSpat2Fry(end,:));%IfryPose*troty(pi)*trotz(pi/2)
 
 % Goback to qn
 qNorm = RMRC(robot,robot.model.fkine(qPickUpFry(end,:)),robot.model.fkine(qn),qPickUpFry(end,:));
@@ -280,14 +243,14 @@ for i = 1: size(qDown2Spat,1)
 robot.model.animate(qDown2Spat(i,:));
 pause(0.01);
 end
-% for i = 1 :sUnit: size(qSpat2p1,1)
-%     robot.model.animate(qSpat2p1(i,:));
-%     spatPose = robot.model.fkine(qSpat2p1(i,:))*troty(pi);
-%     updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
-%     spat_h.Vertices = updatedSpatPosition(:,1:3);
-%     drawnow();
-%     pause(0.01);
-% end
+for i = 1 :sUnit: size(qSpat2p1,1)
+    robot.model.animate(qSpat2p1(i,:));
+    spatPose = robot.model.fkine(qSpat2p1(i,:))*troty(pi);
+    updatedSpatPosition = [spatPose*[vSpat,ones(size(vSpat,1),1)]']';
+    spat_h.Vertices = updatedSpatPosition(:,1:3);
+    drawnow();
+    pause(0.01);
+end
 
 %Flip the meat1
 
@@ -466,20 +429,6 @@ for i = 1: size(qNorm,1)
 robot.model.animate(qNorm(i,:));
 pause(0.01);
 end
-
-% qMatrix = RMRC(robot,transl(0.5,-0.2,0.7),transl(0.5,0.5,0.7),qn);
-% for i = 1:size(qMatrix,1)
-%     result = IsCollision(robot.model,qMatrix(i+2,:),faces,vertex,faceNormals);
-%     if result
-%         break;
-%     end
-%
-%     robot.model.animate(qMatrix(i,:));
-%     drawnow();
-% end
-
-
-
 
 end
 
